@@ -3,7 +3,7 @@ body{
   margin: 1rem;
   padding: 1rem;
   border: 2px dodgerblue solid;
-  background-color: rgb(10,20,20);
+  background-color: rgb(30,40,50);
   color: rgb(240, 240, 240)
 }
 
@@ -14,4 +14,7 @@ a{
 li.selected{
   font-weight: bold;
   font-style: italic;
+}
+pre{
+  color: rgb(200, 200, 200)
 }

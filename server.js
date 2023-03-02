@@ -4,6 +4,11 @@ const conn = new Sequelize(process.env.DATABASE_URL || "postgres://localhost/gui
 const { UUIDV4 } = require('sequelize')
 
 const Guitar = conn.define('guitar' ,{
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    defaultValue: Sequelize.UUIDV4
+  },
   name: {
     type: Sequelize.STRING
   },
@@ -47,7 +52,7 @@ const path = require('path')
 // middleware
 app.use('/assets', express.static('assets'))
 
-app.get('/api/guitars', (req, res) => res.sendFile(path.join(__dirname, 'index.html')))
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')))
 
 // routes
 app.get('/api/guitars', async(req, res, next) => {
@@ -66,20 +71,48 @@ app.get('/api/guitars', async(req, res, next) => {
 )
 app.get('/api/guitars/:id', async(req, res, next) => {
   try{
-    const thing = await Guitar.findByPk(req.params.id)
-    if(!thing){
+    const guitar = await Guitar.findByPk(req.params.id)
+    if(!guitar){
       res.sendStatus(404)
     }
     else{
-    res.send(thing)}
+    res.send(guitar)}
   }
   catch(ex){
     next(ex)
-  }
-}
-)
+  }});
+
+app.post('/api/guitars', async(req, res, next)=> {
+    try {
+      const guitars = await Guitar.create(req.body);
+      res.status(201).send(guitars);
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+
+  app.delete('/api/guitars/:id', async(req, res, next) => {
+    try{
+      const toDelete = await Guitar.findByPk(req.params.id)
+      toDelete.destroy();
+      res.sendStatus(204)
+    }
+    catch(ex){
+      next(ex)
+    }
+  })
+
+  
+app.use((err, req, res, next)=> {
+  console.log(err);
+  res.status(500).send({ error: err });
+});
+
 
 // server page setup
+
+
 const port = process.env.PORT || 3000;
 
 app.listen(port, async()=> {
