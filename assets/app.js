@@ -26,7 +26,6 @@ const renderGuitars = (guitars) =>{
 
 loadGuitars();
 
-
 const showDetails = async() => {
   const id = window.location.hash.slice(1);
   if(id){
@@ -41,55 +40,39 @@ renderGuitars(guitars)
 }
 window.addEventListener('hashchange', showDetails)
 
-
-
 // random guitar generator
-const brands = ['Fender', 'Gibson', 'PRS', 'Martin'];
-const names = ['One', 'Two', 'Three', 'Four'];
-const bodies = ['Solid', 'Semi-Hollow', 'Hollow'];
-const pickups = ['Single-Coil', 'Double-Coil','Humbucker'];
+const brands = ['Fender', 'Gibson', 'PRS', 'Gretsch', 'Squier', 'Epiphone', 'Taylor', 'Martin'];
+const names = ['One', 'Two', 'Three', 'Four', 'Custom', 'Vintage', 'Standard', 'Special Series', 'Classic'];
+const bodies = ['SOLID', 'SEMI-HOLLOW','HOLLOW','ACOUSTIC'];
+const pickups = ['SINGLE-COIL', 'DOUBLE-COIL', 'HUMBUCKER','NONE'];
 const gauges = [8,9,10,11,12]
 const rando = (array) => {return Math.floor(Math.random()*array.length);}
-const randomGuitar = {
+const randomGuitar = () => {
+  return {
   name: names[rando(names)],
   brand: brands[rando(brands)],
   bodyType: bodies[rando(bodies)],
   pickUpType: pickups[rando(pickups)],
   stringGauge: gauges[rando(gauges)]
-}
-console.log('new guitar!', randomGuitar)
+}}
+console.log('new guitar!', randomGuitar())
 
 button.addEventListener('click', async()=> {
+  const body = randomGuitar();
+  console.log('HERE IS THE BODY', body, 'BODY OVER')
   const response = await fetch('/api/guitars', {
     method: 'POST',
     mode: 'cors',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      name: names[rando(names)],
-      brand: brands[rando(brands)],
-      bodyType: bodies[rando(bodies)],
-      pickUpType: pickups[rando(pickups)],
-      stringGauge: gauges[rando(gauges)]
-    }),
+    body: JSON.stringify(body),
   });
   const guitar = await response.json();
-  console.log('guitar', guitar)
-  console.log(JSON.stringify(guitar))
   guitars.push(guitar);
   renderGuitars(guitars);
   window.location.hash = guitar.id;
-//   console.log('response', response)
-//   console.log('guitar', guitar)
-//   console.log('guitars push', guitars)
 });
-
-// const html =`${newGuitar.brand} ${newGuitar.name}
-// <ul><li>Body Type: ${newGuitar.bodyType}</li>
-//   <li>Pickup Type: ${newGuitar.pickUpType} </li>
-//   <li>String Gauge: ${newGuitar.stringGauge}</li></ul>`
-// pre.innerHTML = html;
 
 ul.addEventListener('click', async(ev) => {
   if(ev.target.tagName === 'BUTTON'){
@@ -100,4 +83,6 @@ ul.addEventListener('click', async(ev) => {
     guitars = guitars.filter(guitar => guitar.id !== id);
     renderGuitars(guitars);
   }
+  pre.innerHTML = ''
+  pre.innerTEXT = ''
 })

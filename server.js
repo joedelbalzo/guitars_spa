@@ -20,7 +20,7 @@ const Guitar = conn.define('guitar' ,{
     defaultValue: 'SOLID',
   },
   pickUpType:{
-    type: Sequelize.ENUM('SINGLE-COIL', 'DOUBLE-COIL','HUMBUCKER', 'NONE'),
+    type: Sequelize.ENUM('SINGLE-COIL', 'DOUBLE-COIL', 'HUMBUCKER', 'NONE'),
   },
   stringGauge:{
     type: Sequelize.INTEGER
@@ -28,26 +28,13 @@ const Guitar = conn.define('guitar' ,{
   description: {
     type: Sequelize.TEXT
   },
-  isElectric:{
-    type: Sequelize.VIRTUAL,
-    get(){
-      return this.pickUpType === 'NONE' ? false : true
-    },
-  },
-  isAcoustic:{
-    type: Sequelize.VIRTUAL,
-    get(){
-      return this.bodyType === 'ACOUSTIC' ? true : false
-    },
-  },
-}
-);
+});
 
 // express
 const express = require('express');
 const app = express()
 const path = require('path')
-
+app.use(express.json())
 
 // middleware
 app.use('/assets', express.static('assets'))
@@ -61,8 +48,7 @@ app.get('/api/guitars', async(req, res, next) => {
       attributes: {
         exclude: ['bodyType', 'pickUpType', 'stringGauge', 'description']
       }})
-      )
-      
+    )
   }
   catch(ex){
     next(ex)
@@ -83,38 +69,35 @@ app.get('/api/guitars/:id', async(req, res, next) => {
   }});
 
 app.post('/api/guitars', async(req, res, next)=> {
-    try {
-      const guitars = await Guitar.create(req.body);
-      res.status(201).send(guitars);
-    }
-    catch(ex){
-      next(ex);
-    }
+  try {
+    const guitars = await Guitar.create(req.body);
+    console.log('HEY HERE IS THE LOG', req.body, 'LOG OVER')
+    res.status(201).send(guitars);
+  }
+  catch(ex){
+    console.log(ex);
+  }
   });
 
-  app.delete('/api/guitars/:id', async(req, res, next) => {
-    try{
-      const toDelete = await Guitar.findByPk(req.params.id)
-      toDelete.destroy();
-      res.sendStatus(204)
-    }
-    catch(ex){
-      next(ex)
-    }
-  })
+app.delete('/api/guitars/:id', async(req, res, next) => {
+  try{
+    const toDelete = await Guitar.findByPk(req.params.id)
+    toDelete.destroy();
+    res.sendStatus(204)
+  }
+  catch(ex){
+    next(ex)
+  }
+})
 
-  
+// error page
 app.use((err, req, res, next)=> {
   console.log(err);
   res.status(500).send({ error: err });
 });
 
-
 // server page setup
-
-
 const port = process.env.PORT || 3000;
-
 app.listen(port, async()=> {
   try{
     console.log(`listening on port ${port}`);
